@@ -1,0 +1,23 @@
+#Node packages
+/node_modules
+
+#Environment secrets
+.env
+
+#Database
+/src/database/ConfessionsBot.sqlite
+
+#Compiled TypeScript
+/dist
+
+#VSCode Files
+.vscode
+
+#Log Files
+/src/**/*.log
+
+#Future features
+/src/misc
+
+*.lock
+bun.lockb

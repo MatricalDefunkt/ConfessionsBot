@@ -1,0 +1,32 @@
+{
+  "name": "confessionsbot",
+  "version": "1.0.0",
+  "description": "An open source global discord bot which is easy to setup and use, which allows for privacy as well as security.",
+  "scripts": {
+    "start": "tsc && bun run ./dist/index.js"
+  },
+  "author": "MatricalDefunkt",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/builders": "^1.3.0",
+    "@discordjs/rest": "^1.3.0",
+    "discord-api-types": "^0.37.12",
+    "discord.js": "^14.6.0",
+    "dotenv": "^16.0.1",
+    "mysql2": "^3.6.0",
+    "natural": "latest",
+    "path": "^0.12.7",
+    "sequelize": "^6.21.1",
+    "stopword": "^2.0.2",
+    "swearjar": "^0.2.0",
+    "tslib": "^2.4.0",
+    "yargs": "^17.5.1"
+  },
+  "devDependencies": {
+    "@types/natural": "^5.1.1",
+    "@types/stopword": "^2.0.0",
+    "@types/yargs": "^17.0.13",
+    "typescript": "latest"
+  },
+  "module": "index.ts"
+}
