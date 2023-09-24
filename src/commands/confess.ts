@@ -68,6 +68,7 @@ export default class Confess
       });
       const button = await reply
         .awaitMessageComponent({
+          time: 300_000,
           componentType: ComponentType.Button,
         })
         .catch(async (e) => {
@@ -80,7 +81,10 @@ export default class Confess
           return;
         });
       if (button) {
-        await button.deferUpdate();
+        await button.update({
+          content: `Processing...`,
+          components: disableButtons(reply),
+        });
         if (button.customId === "yessend") {
           const confessionMessage = await confessChannel.send({
             embeds: [embed],
@@ -128,13 +132,20 @@ export default class Confess
   onCancel: ChatInputCommand<"cached">["onCancel"] = async (interaction) => {
     const helpChannelId = (await Configs.findByPk(interaction.guildId))
       ?.helpChannelId;
+    const block = await Blocks.findOne({
+      where: { userId: interaction.user.id, guildId: interaction.guild.id },
+    });
     if (!helpChannelId)
       return interaction.editReply({
-        content: `It seems that you have been blocked from making confessions on this server by the server staff. Please reach out to them to get yourself unblocked.`,
+        content: `It seems that you have been blocked from making confessions on this server by the server staff for the reason \`${
+          block ? block.reason : ""
+        }\`. Please reach out to them to get yourself unblocked.`,
       });
     else
       return interaction.editReply({
-        content: `It seems that you have been blocked from making confessions on this server by the server staff. Please reach out to them through <#${helpChannelId}> to get yourself unblocked.`,
+        content: `It seems that you have been blocked from making confessions on this server by the server staff for the reason \`${
+          block ? block.reason : ""
+        }\`. Please reach out to them through <#${helpChannelId}> to get yourself unblocked.`,
       });
   };
 

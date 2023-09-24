@@ -3,12 +3,14 @@
 import { ContextMenuCommandBuilder } from "@discordjs/builders";
 import { CommandCancelCodes, ContextMenu } from "../types/interfaces";
 import {
+  ActionRowBuilder,
+  ModalBuilder,
+  TextInputBuilder,
   ApplicationCommandType,
   ComponentType,
   PermissionFlagsBits,
   TextInputStyle,
-} from "discord-api-types/v10";
-import { ActionRowBuilder, ModalBuilder, TextInputBuilder } from "discord.js";
+} from "discord.js";
 import { Blocks, Confessions, Configs } from "../database/database";
 import { encrypt } from "../utils/encryptor";
 import { createBlockRequestEmbed } from "../utils/embedCreators";
@@ -16,9 +18,6 @@ import {
   createConfirmationButtons,
   disableButtons,
 } from "../utils/buttonCreators";
-
-const confirmButtons = createConfirmationButtons("block", "cancel");
-const disabledConfirmButtons = disableButtons(confirmButtons);
 
 const reasonModal = new ModalBuilder()
   .setCustomId("reasonModal")
@@ -28,7 +27,6 @@ const reasonInputComponent = new TextInputBuilder()
   .setCustomId("reason")
   .setLabel("Reason for blocking. Will be shown to user.")
   .setPlaceholder("Under 512 characters...")
-  .setMinLength(16)
   .setMaxLength(512)
   .setRequired(true);
 const reasonInputRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
@@ -41,6 +39,7 @@ export default class Block
   implements ContextMenu
 {
   execute: ContextMenu["execute"] = async (interaction) => {
+    const confirmButtons = createConfirmationButtons("block", "cancel");
     if (!interaction.isMessageContextMenuCommand()) return;
     const message = interaction.targetMessage;
     if (
@@ -66,7 +65,7 @@ export default class Block
           if (err.code === "INTERACTION_COLLECTOR_ERROR") {
             await interaction.editReply({
               content: `Did not click buttons in time.`,
-              components: disabledConfirmButtons,
+              components: disableButtons(confirmButtons),
             });
             return;
           }
@@ -92,32 +91,40 @@ export default class Block
               if (e.code === "INTERACTION_COLLECTOR_ERROR") {
                 await button.editReply({
                   content: `You did not submit modal in time. The action has been cancelled.`,
-                  components: disabledConfirmButtons,
+                  components: disableButtons(confirmButtons),
                 });
                 return;
               } else console.error(e);
             });
           if (modalSubmit) {
             if (!modalSubmit.isFromMessage()) return;
-            await modalSubmit.deferUpdate();
+            await modalSubmit.update({
+              content: `Processing...`,
+              components: disableButtons(confirmButtons),
+            });
 
             const reason = modalSubmit.fields.getTextInputValue("reason");
 
             const previousBlock = await Blocks.findAll({
               where: {
-                userId: encrypt(interaction.user.id),
+                userId: interaction.user.id,
                 guildId: interaction.guildId,
               },
             });
 
             if (previousBlock.length < 1) {
               const newBlock = await Blocks.create({
-                userId: encrypt(storedConfession.userId),
+                userId: storedConfession.userId,
                 guildId: interaction.guildId,
                 modId: interaction.user.id,
                 type: "block",
                 reason,
                 count: 1,
+              });
+
+              await message.delete();
+              await button.editReply({
+                content: `The user has been blocked successfully for the reason \`${newBlock.reason}\`. Their confession has been deleted.`,
               });
             } else {
               return;

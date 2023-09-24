@@ -47,11 +47,29 @@ export const createBlockRequestEmbed = ({
       iconURL: interaction.user.displayAvatarURL(),
     })
     .setDescription(
-      `You are about to block the creator of (this)[${messageURL}] confession. Proceed? You have five minutes to decide.`
+      `You are about to block the creator of [this](${messageURL}) confession. Proceed? You have five minutes to decide.`
     )
     .setColor("Red")
     .setTitle("Block Request:")
     .setURL(messageURL);
+  return requestEmbed;
+};
+
+export const createUnblockRequestEmbed = (
+  interaction: ChatInputCommandInteraction<"cached">
+) => {
+  const requestEmbed = new EmbedBuilder()
+    .setAuthor({
+      name: interaction.user.tag,
+      iconURL: interaction.user.displayAvatarURL(),
+    })
+    .setDescription(
+      `You are about to unblock ${
+        interaction.options.getUser("user", true).displayName
+      }. Proceed? You have five minutes to decide.`
+    )
+    .setColor("Red")
+    .setTitle("Unblock Request:");
   return requestEmbed;
 };
 

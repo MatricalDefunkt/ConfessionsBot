@@ -4,12 +4,14 @@ import Confess from "./confess";
 import Config from "./config";
 import Eval from "./eval";
 import Ping from "./ping";
+import Unblock from "./unblock";
 
 const commands: ChatInputCommand<any>[] = [
   new Ping(),
   new Confess(),
   new Config(),
   new Eval(),
+  new Unblock(),
 ];
 for (const command of commands) {
   let counter = 0;
